@@ -1,0 +1,198 @@
+cursors
+need of cursor:-
+
+declare
+cursor c_emp is select * from emp;             //define cursor following by any valid query(may include joins,etc)
+v_emp c_emp%rowtype;                            //define variable that can hold value for whole row
+begin
+open c_emp;                                                     //open the cursor
+for v_counter in 1..10                                         //not defining the loop will show only 1st row by default
+loop
+fetch c_emp into v_emp;                              //puts cursor data after fetching in the var  
+dbms_output.put_line('ename='||v_emp.ename||' sal='||v_emp.sal);
+end loop;
+close c_emp;                                                           //close cursor
+end;
+/
+ename=KING sal=5000
+ename=BLAKE sal=2850
+ename=CLARK sal=2450
+ename=JONES sal=2975
+ename=MARTIN sal=1250
+ename=ALLEN sal=1600
+ename=TURNER sal=1500
+ename=JAMES sal=950
+ename=WARD sal=1250
+ename=FORD sal=3000
+
+---------------------------------------------------------------------
+Attributes %found, %notfound, %isopen, %rowcount
+---------------------------------------------------------------------
+declare
+cursor c_emp is select * from emp;             
+v_emp c_emp%rowtype;                           
+begin
+open c_emp;    
+
+loop                                                                                      
+fetch c_emp into v_emp;    
+exit when c_emp%notfound;                         
+dbms_output.put_line('ename='||v_emp.ename||' sal='||v_emp.sal||'row count='||c_emp%rowcount);
+end loop;
+if c_emp%isopen then
+dbms_output.put_line('closing cursor');
+close c_emp; 
+end if;                                                         
+end;
+/
+ename=KING sal=5000row count=1
+ename=BLAKE sal=2850row count=2
+ename=CLARK sal=2450row count=3
+ename=JONES sal=2975row count=4
+ename=MARTIN sal=1250row count=5
+ename=ALLEN sal=1600row count=6
+ename=TURNER sal=1500row count=7
+ename=JAMES sal=950row count=8
+ename=WARD sal=1250row count=9
+ename=FORD sal=3000row count=10
+ename=SMITH sal=800row count=11
+ename=SCOTT sal=3000row count=12
+ename=ADAMS sal=1100row count=13
+ename=MILLER sal=1300row count=14
+closing cursor
+
+-------------------------------------------------------------------------------------------------
+making a cursor dynamic by reopening it and passing diff values to parameter
+-------------------------------------------------------------------------------------------------
+declare
+cursor c_emp(p_deptno number) is select * from emp where deptno=p_deptno;   //passing parameter     
+v_emp c_emp%rowtype;                           
+begin
+open c_emp(10);    //parameter will take value 10
+dbms_output.put_line('emp from deptno 10');
+loop                                                                                      
+fetch c_emp into v_emp;    
+exit when c_emp%notfound;                         
+dbms_output.put_line('ename='||v_emp.ename||' sal='||v_emp.sal||'row count='||c_emp%rowcount);
+end loop;
+if c_emp%isopen then
+dbms_output.put_line('closing cursor');
+close c_emp; 
+end if;   
+
+open c_emp(20);      //parameter will take value 20
+dbms_output.put_line('emp from deptno 20');
+loop                                                                                      
+fetch c_emp into v_emp;    
+exit when c_emp%notfound;                         
+dbms_output.put_line('ename='||v_emp.ename||' sal='||v_emp.sal||'row count='||c_emp%rowcount);
+end loop;
+if c_emp%isopen then
+dbms_output.put_line('closing cursor');
+close c_emp; 
+end if;                                                                                     
+end;
+/
+
+emp from deptno 10
+ename=KING sal=5000row count=1
+ename=CLARK sal=2450row count=2
+ename=MILLER sal=1300row count=3
+closing cursor
+emp from deptno 20
+ename=JONES sal=2975row count=1
+ename=FORD sal=3000row count=2
+ename=SMITH sal=800row count=3
+ename=SCOTT sal=3000row count=4
+ename=ADAMS sal=1100row count=5
+closing cursor
+
+--------------------------------------------------------------------------
+reduced line of codes just by using for loop
+--------------------------------------------------------------------------
+declare
+cursor c_emp(p_deptno number) is select * from emp where deptno=p_deptno;                       
+ begin 
+dbms_output.put_line('emp from deptno 10');
+for v_emp in c_emp(10)                //will open the cursor by itself and take the data into var and close as well
+loop                                                                                                               
+dbms_output.put_line('ename='||v_emp.ename||' sal='||v_emp.sal||'row count='||c_emp%rowcount);
+end loop;
+dbms_output.put_line('emp from deptno 20');
+for v_emp in c_emp(20)
+loop                                                                                                               
+dbms_output.put_line('ename='||v_emp.ename||' sal='||v_emp.sal||'row count='||c_emp%rowcount);
+end loop;
+end;
+/
+emp from deptno 10
+ename=KING sal=5000row count=1
+ename=CLARK sal=2450row count=2                   //same output as above
+ename=MILLER sal=1300row count=3
+emp from deptno 20
+ename=JONES sal=2975row count=1
+ename=FORD sal=3000row count=2
+ename=SMITH sal=800row count=3
+ename=SCOTT sal=3000row count=4
+ename=ADAMS sal=1100row count=5
+
+---------------------------------------------------------------------------------------------------------------------
+SQL Implicit cursor   //cannot be used to view data,for that use explicit cursor only(as above)
+---------------------------------------------------------------------------------------------------------------------
+//use when to update,insert data
+begin
+update emp set sal=sal+1000 where deptno=10;
+if SQL%found then
+dbms_output.put_line('record updated, no of affected rows '||SQL%rowcount);
+else
+dbms_output.put_line('record not updated');
+end if;
+end;
+
+---------------------------------------------------------------------------------------------------
+for update clause(record locking) and where current of clause //for explicit cursor
+---------------------------------------------------------------------------------------------------
+//imp//
+declare
+cursor c_emp is select * from emp for update;   
+begin
+for v_emp in c_emp
+loop
+if v_emp.deptno=10 then
+update emp set sal=sal+sal*0.3 where current of c_emp;
+dbms_output.put_line('for deptno 10 ename= '||v_emp.ename||' sal= '||v_emp.sal||' deptno= '||v_emp.deptno);
+elsif v_emp.deptno=20 then
+update emp set sal=sal+sal*0.2 where current of c_emp;
+dbms_output.put_line('for deptno 20 ename= '||v_emp.ename||' sal= '||v_emp.sal||' deptno= '||v_emp.deptno);
+elsif v_emp.deptno=30 then
+update emp set sal=sal+sal*0.1 where current of c_emp;
+dbms_output.put_line('for deptno 30 ename= '||v_emp.ename||' sal= '||v_emp.sal||' deptno= '||v_emp.deptno);
+end if;
+end loop;
+end;
+/
+
+----------------------------------------------------------------------------------------------------------------------------
+
+declare
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

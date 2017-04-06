@@ -1,0 +1,224 @@
+------------------------------------------------------------------------------------
+                                                EXCEPTIONS
+-------------------------------------------------------------------------------------
+
+declare
+v_sal emp.sal%type;
+var number(3);
+z number;
+begin
+z:=10/0;
+var:=1000;
+select sal into v_sal from emp where empno=1;
+dbms_output.put_line('sal '||v_sal);
+exception
+when no_data_found then
+dbms_output.put_line('empno is not available');
+when zero_divide then
+dbms_output.put_line('dont try to divide by zero');
+when others then
+dbms_output.put_line('exception raised');
+end;
+
+declare
+cursor c_emp is select * from emp;
+begin
+close c_emp;
+exception
+when invalid_cursor then
+dbms_output.put_line('please open the cursor first');
+end;
+
+declare
+v_sal emp.sal%type;
+begin
+select sal into v_sal from emp where empno=1;
+dbms_output.put_line('sal '||v_sal);
+exception
+when no_data_found or value_error then
+dbms_output.put_line('empno is not available or value error');
+when zero_divide then
+dbms_output.put_line('dont try to divide by zero');
+when others then
+dbms_output.put_line('exception raised');
+end;
+
+------------------------------------------------------------------------
+NESTED BEGIN
+-------------------------------------------------------------------------
+begin
+	declare
+	v_sal emp.sal%type;
+	var number(3):=10000;
+	z number;
+	begin
+	select sal into z from emp;
+	z:=10/0;
+	select sal into v_sal from emp where empno=1;
+	dbms_output.put_line('sal '||v_sal);
+	end;
+exception
+when no_data_found then
+dbms_output.put_line('empno is not available');
+when zero_divide then
+dbms_output.put_line('dont try to divide by zero');
+when others then
+dbms_output.put_line('exception raised');
+end;
+
+
+------------------------------------------------------------------------------------------------------
+eg //after showing exception and remedy for 1st block will go for executing 2nd block
+------------------------------------------------------------------------------------------------------
+declare
+var number(3);
+z number;
+begin
+begin
+var:=1000;
+dbms_output.put_line('var= '||var);
+exception
+when value_error then
+dbms_output.put_line('check values');
+end;
+z:=10/0;
+dbms_output.put_line('after z');
+exception
+when no_data_found then
+dbms_output.put_line('empno is not available');
+when zero_divide then
+dbms_output.put_line('dont try to divide by zero');
+when others then
+dbms_output.put_line('exception raised');
+end;
+/
+output:-
+check values
+dont try to divide by zero
+
+--------------------------------------------------------------------
+                        UNNAMED EXCEPTIONS
+--------------------------------------------------------------------
+eg1.
+declare
+childfound exception;
+pragma exception_init(childfound,-02292);
+begin
+delete dept where deptno=10;
+dbms_output.put_line('dept 10 is deleted');
+
+exception
+when childfound then
+dbms_output.put_line('emp existing in dept 10');
+end;
+
+eg2. explicit exception
+declare
+marks number;
+wrong_marks exception;
+begin
+marks:=&marks;
+if marks>100 then
+raise wrong_marks;
+end if;
+dbms_output.put_line('ur marks '||marks);
+
+exception
+when wrong_marks then
+dbms_output.put_line('enter valid marks which is <=100');
+end;
+Enter value for marks: 120
+enter valid marks which is <=100
+
+----------------------------------------------------
+example
+----------------------------------------------------
+declare        //sql command line
+v_sal number;
+v_empid number:=&eid;
+v_amt number:=&amt;
+invalid_amt exception;
+begin
+select salary into v_sal from employees where employee_id=v_empid;
+if v_amt>v_sal then
+raise invalid_amt;
+end if;
+dbms_output.put_line('salary is '||v_sal);
+
+exception
+when invalid_amt then
+dbms_output.put_line('insufficient salary');
+end;
+Enter value for eid: 101
+Enter value for amt: 20000
+insufficient salary
+
+------------------------------------------------------------------------------------------------
+eg.
+declare
+var number(3);
+begin
+var:=10000;
+dbms_output.put_line('var='||var);
+exception
+when value_error then
+dbms_output.put_line('error code= '||SQLCODE||' message= '||SQLERRM);
+end;
+/
+error code= -6502 message= ORA-06502: PL/SQL: numeric or value error: number
+precision too large
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

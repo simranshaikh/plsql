@@ -1,0 +1,414 @@
+SQL> set serveroutput on
+SQL> declare
+  2  i number:=10;
+  3  begin
+  4  dbms_output.put_line('value of i is'||i);
+  5  end;
+  6  /
+value of i is10
+
+PL/SQL procedure successfully completed.
+
+
+SQL> declare
+  2  i number:=&num1;
+  3  j number:=&num2;
+  4  addition number;
+  5  begin
+  6  addition:=i+j;
+  7  dbms_output.put_line('addition of number is'||addition);
+  8  end;
+  9  /
+Enter value for num1: 22
+old   2: i number:=&num1;
+new   2: i number:=22;
+Enter value for num2: 55
+old   3: j number:=&num2;
+new   3: j number:=55;
+addition of number is77
+
+PL/SQL procedure successfully completed.
+
+------------------------------------------------------
+SQL> declare
+     v_name varchar2(20);
+       v_sal number;
+      v_empid number :=&eno;
+     begin
+ select last_name,salary into v_name,v_sal from employees where employee_id=v_empid;
+       dbms_output.put_line('name= '||v_name);
+      dbms_output.put_line('salary= '||v_sal);
+       end;
+     /
+Enter value for eno: 100
+old   4:    v_empid number :=&eno;
+new   4:    v_empid number :=100;
+name= King
+salary= 24000
+-----------------------------------------------------------
+variableName tablename%rowtype
+----------------------------------------------------
+    declare
+     Rec_Emp employees%rowtype;
+     v_empid number :=&eno;
+     begin
+      select * into Rec_Emp from employees where employee_id=v_empid;
+     dbms_output.put_line('name= '|| Rec_Emp.last_name);
+     dbms_output.put_line('salary= '|| Rec_Emp.salary);
+     end;
+     /
+Enter value for eno: 101
+old   4:       v_empid number :=&eno;
+new   4:       v_empid number :=101;
+name= Kochhar
+salary= 17000
+
+--------------------------------------------------
+variablename tablename.columnname%type
+----------------------------------------------------
+   declare
+     v_name employees.last_name%type;
+       v_sal employees.salary%type;
+      v_empid number :=&eno;
+     begin
+ select last_name,salary into v_name,v_sal from employees where employee_id=v_empid;
+       dbms_output.put_line('name= '||v_name);
+      dbms_output.put_line('salary= '||v_sal);
+       end;
+     /
+Enter value for eno: 101
+old   4:       v_empid number :=&eno;
+new   4:       v_empid number :=101;
+name= Kochhar
+salary= 17000
+---------------------------------------------
+if condition then
+-----
+-----
+end if;
+-------------------------------------------------
+if condition then
+---
+---
+else
+----
+----
+end if;
+---------------------------------------
+declare
+a number:=&num1;
+begin
+if (mod(a,2)=0) then
+dbms_output.put_line(a||' is  even number');
+else
+dbms_output.put_line(a||' is  odd number');
+end if;
+end;
+/
+Enter value for num1: 10
+old   2: a number:=&num1;
+new   2: a number:=10;
+10 is  even number
+----------------------------------------
+
+if condition then
+---
+elseif 
+set verify off      --to disable old n new values
+declare
+a number:=&num1;
+b number:=&num2;
+c number:=&num3;
+begin
+if (a>b and a>c) then
+dbms_output.put_line(a ||' is  max number');
+elsif (b>c) then
+dbms_output.put_line(b ||' is  max number');
+else
+dbms_output.put_line(c ||' is  max number');
+end if;
+end;
+/
+Enter value for num1: 22
+Enter value for num2: 33
+Enter value for num3: 77
+77 is  max number
+-------------------------------------------------------------
+loops
+ 1.basic loop
+2.while loop
+3.for loop         --always increment by 1
+
+1.basic loop
+loop
+----
+----
+exit when(condition);
+end loop;
+
+eg.
+declare
+i number:=1;
+begin
+loop
+exit when(i>5);
+dbms_output.put_line(i);
+i:=i+1;
+end loop;
+end;
+/
+
+----------------------------------------------
+2. while loop
+
+while(condition)
+loop
+---
+--
+end loop;
+eg.
+declare
+i number:=1;
+begin
+while(i<=5)
+loop
+dbms_output.put_line(i);
+i:=i+1;
+end loop;
+end;
+/
+
+----------------------------------------------
+3. for loop
+for variablename in lowerlimit..upperlimit
+loop
+---
+--
+end loop;
+eg.
+
+begin
+for i in 1..5    / for i in reverse 1..5   ---only 2 dots in betn
+loop
+dbms_output.put_line(i);
+end loop;
+end;
+/
+-----------------------------------------------------
+
+bind variables
+
+variable Maxsal number
+begin
+select max(salary) into :Maxsal from employees;
+dbms_output.put_line('Max salary is= '||:Maxsal);
+end;
+/
+o/p
+Max salary is= 24000
+
+PL/SQL procedure successfully completed.
+
+SQL> print Maxsal
+
+    MAXSAL
+----------
+     24000
+
+
+-----------------------------------------------
+life of variable exists bt scope is not there(if same variable is declared locally and globally)
+
+
+
+assignment:-
+
+SQL> declare
+  2  i number:=1;
+  3  begin
+  4  loop
+  5  exit when(i>20);
+  6  if (mod(i,2)=0) then
+  7  dbms_output.put_line(i);
+  8  end if;
+  9  i:=i+1;
+ 10  end loop;
+ 11  end;
+ 12  /
+
+
+SQL> declare
+  2  i number:=1;
+  3  begin
+  4  while(i<=20)
+  5  loop
+  6  if (mod(i,2)=0) then
+  7  dbms_output.put_line(i);
+  8  end if;
+  9  i:=i+1;
+ 10  end loop;
+ 11  end;
+ 12  /
+
+
+begin
+for i in 1..20  
+loop
+if (mod(i,2)=0) then
+dbms_output.put_line(i);
+end if;
+end loop;
+end;
+/
+
+que4)
+  1  declare
+  2      i number:=&num1;
+  3      j number:=&num2;
+  4     operation number;
+  5      begin
+  6      operation:=(i/j)+j;
+  7      dbms_output.put_line('addition of number is '||operation);
+  8*     end;
+Enter value for num1: 4
+Enter value for num2: 2
+addition of number is 4
+
+que5)//working on sql command line
+SQL> declare
+max_salary number;
+ min_salary number;
+ v_deptid number :=&eno;
+ begin
+ select max(salary) into  max_salary from employees where department_id=v_deptid;
+select min(salary) into  min_salary from employees where department_id=v_deptid;
+ dbms_output.put_line('max slary is= '||max_salary);
+ dbms_output.put_line('min salary is= '||min_salary);
+ end;
+        /
+
+
+//working in sql plus
+ declare
+max_salary number;
+ min_salary number;
+ v_deptid number :=&eno;
+ begin
+ select max(sal) into max_salary  from emp where deptno=v_deptid;
+select min(sal) into min_salary from emp where deptno=v_deptid;
+ dbms_output.put_line('max salary is= '||max_salary);
+ dbms_output.put_line('min salary is= '||min_salary);
+ end;
+        /
+
+Enter value for eno: 100
+max slary is= 12000
+min salary is= 6900
+
+PL/SQL procedure successfully completed.
+
+SQL> select max(salary) from employees where department_id=100;
+
+MAX(SALARY)
+-----------
+      12000
+
+
+que6)
+declare
+v_job varchar2(20):='&jobid';
+v_sal number;
+begin
+select avg(sal) into v_sal from emp where lower(job)=v_job;
+dbms_output.put_line('average salary is= '||v_sal);
+end;
+/
+
+
+que7)//sqlplus
+declare
+v_empid number:=&eno;
+v_sal number;
+begin
+select sal into v_sal from emp where empno=v_empid;
+if v_sal<2500 then
+dbms_output.put_line('salary is LOW');
+elsif v_sal>=2500 and v_sal<5000 then
+dbms_output.put_line('salary is MEDIUM');
+else
+dbms_output.put_line('salary is HIGH');
+end if;
+end;
+/
+Enter value for eno: 101
+old   2: v_empid number:=&eno;
+new   2: v_empid number:=101;
+salary is HIGH
+
+que8)
+declare
+m_no number:=&eno;
+begin
+if 
+m_no=1 then
+dbms_output.put_line('JANUARY');
+elsif m_no=2 then
+dbms_output.put_line('FEBRUARY');
+elsif m_no=3 then
+dbms_output.put_line('MARCH');
+elsif m_no=4 then
+dbms_output.put_line('APRIL');
+elsif m_no=5 then
+dbms_output.put_line('MAY');
+elsif m_no=6 then
+dbms_output.put_line('JUNE');
+elsif m_no=7 then
+dbms_output.put_line('JULY');
+elsif m_no=8 then
+dbms_output.put_line('AUGUST');
+elsif m_no=9 then
+dbms_output.put_line('SEPTEMBER');
+elsif m_no=10 then
+dbms_output.put_line('OCTOBER');
+elsif m_no=11 then
+dbms_output.put_line('NOVEMBER');
+elsif m_no=12 then
+dbms_output.put_line('DECEMBER');
+else
+dbms_output.put_line('INVALID');
+end if;
+end;
+/
+Enter value for eno: 8
+old   2: m_no number:=&eno;
+new   2: m_no number:=8;
+AUGUST
+
+
+que9)
+declare
+n number:=&n;
+temp number;
+sum1 number:=1;
+begin
+temp:=n;
+while temp>0 
+ loop
+sum1:=temp*sum1;
+temp:=temp-1;
+end loop;
+dbms_output.put_line('Factorial of '||n||' is '||sum1);
+end;
+/
+
+
+que10)
+
+
+
+
+
+
+
+
+   

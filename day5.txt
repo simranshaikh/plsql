@@ -1,0 +1,323 @@
+---------------------------------------------------------------------------------------------------------------------
+                                                                   PACKAGES
+---------------------------------------------------------------------------------------------------------------------
+
+------------------------declaring package-------------------------//package specification
+create or replace package emp_pack as
+procedure getempinfo(p_empno emp.empno%type);
+function getsal(p_empno emp.empno%type) return number;
+end;
+/
+----------------------package body----------------------------
+//first run above prog
+create or replace package body emp_pack as
+
+procedure getempinfo(p_empno emp.empno%type) as
+v_ename emp.ename%type;
+begin
+select ename into v_ename from emp where empno=p_empno;
+dbms_output.put_line('from getempinfo proc ename= '||v_ename);
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+
+function getsal(p_empno emp.empno%type) return number as
+v_sal emp.sal%type;
+begin
+select sal into v_sal from emp where empno=p_empno;
+dbms_output.put_line('from getsal function sal is= '||v_sal);
+return v_sal;
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+end;
+/
+
+SQL> execute emp_pack.getempinfo(7788);
+from getempinfo proc ename= SCOTT
+
+declare
+v_forsal emp.sal%type;
+begin
+v_forsal:=emp_pack.getsal(7788);
+dbms_output.put_line('sal from caller= '||v_forsal);
+end;
+o/p:-
+from getsal function sal is= 8630
+sal from caller= 8630
+
+=========================================================================================================
+--------//private procedure:-which is not declared in specification but is used in body//  here private_proc-------------
+=========================================================================================================
+
+
+create or replace package emp_pack as
+procedure getempinfo(p_empno emp.empno%type);
+function getsal(p_empno emp.empno%type) return number;
+end;
+/
+
+create or replace package body emp_pack as
+
+procedure private_proc as
+begin
+dbms_output.put_line('in private procedure private_proc');
+end;
+
+procedure getempinfo(p_empno emp.empno%type) as
+v_ename emp.ename%type;
+begin
+private_proc;
+select ename into v_ename from emp where empno=p_empno;
+dbms_output.put_line('from getempinfo proc ename= '||v_ename);
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+
+function getsal(p_empno emp.empno%type) return number as
+v_sal emp.sal%type;
+begin
+select sal into v_sal from emp where empno=p_empno;
+dbms_output.put_line('from getsal function sal is= '||v_sal);
+return v_sal;
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+end;
+/
+
+SQL> execute emp_pack.getempinfo(7788);
+in private procedure private_proc
+from getempinfo proc ename= SCOTT
+
+===================================================================================================
+------------------------------global and private variable----------------------------------------------------------
+===================================================================================================
+
+create or replace package emp_pack as
+a_var number:=100;
+procedure getempinfo(p_empno emp.empno%type);
+function getsal(p_empno emp.empno%type) return number;
+end;
+/
+
+create or replace package body emp_pack as
+pri_var number:=11;
+procedure private_proc as
+begin
+dbms_output.put_line('in private procedure private_proc');
+end;
+
+procedure getempinfo(p_empno emp.empno%type) as
+v_ename emp.ename%type;
+begin
+private_proc;
+select ename into v_ename from emp where empno=p_empno;
+dbms_output.put_line('from getempinfo proc ename= '||v_ename);
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+
+function getsal(p_empno emp.empno%type) return number as
+v_sal emp.sal%type;
+begin
+select sal into v_sal from emp where empno=p_empno;
+dbms_output.put_line('from getsal function sal is= '||v_sal);
+return v_sal;
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+end;
+/
+//can access global var//
+SQL> begin
+  2  dbms_output.put_line('global variable '||emp_pack.a_var);
+  3  end;
+  4  /
+global variable 100
+
+//private var cannot be accessed//
+begin
+    dbms_output.put_line('private variable '||emp_pack.pri_var);
+    end;
+    /
+ERROR at line 2:
+ORA-06550: line 2, column 56:
+PLS-00302: component 'PRI_VAR' must be declared
+ORA-06550: line 2, column 5:
+PL/SQL: Statement ignored
+
+===========================================================================================================
+-------------------------------------------------------initialisation block-----------------------------------------------------------
+===========================================================================================================
+(that part will be seen only once when we execute itatfsttym) 
+create or replace package emp_pack as
+a_var number:=100;
+procedure getempinfo(p_empno emp.empno%type);
+function getsal(p_empno emp.empno%type) return number;
+end;
+/
+
+create or replace package body emp_pack as
+pri_var number:=11;
+procedure private_proc as
+begin
+dbms_output.put_line('in private procedure private_proc');
+end;
+
+procedure getempinfo(p_empno emp.empno%type) as
+v_ename emp.ename%type;
+begin
+private_proc;
+select ename into v_ename from emp where empno=p_empno;
+dbms_output.put_line('from getempinfo proc ename= '||v_ename);
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+
+function getsal(p_empno emp.empno%type) return number as
+v_sal emp.sal%type;
+begin
+select sal into v_sal from emp where empno=p_empno;
+dbms_output.put_line('from getsal function sal is= '||v_sal);
+return v_sal;
+exception
+when no_data_found then
+dbms_output.put_line('invalid empno');
+end;
+
+begin
+dbms_output.put_line('INITIALISATION');
+a_var:=1;
+end;
+/
+
+
+//executing part//
+begin
+dbms_output.put_line('show o/p '||emp_pack.a_var);
+end;
+/
+o/p:-
+INITIALISATION
+show o/p 1
+
+=====================================================================================================
+-------------------------------------------------function overloading-------------------------------------------------------
+=====================================================================================================
+function is same but s/g is diff (signature:-datatypes of parameters)
+------------------package specification---------------------------------
+create or replace package operations as
+function add(var1 number,var2 number) return number;
+function add(var1 number,var2 number,var3 number) return number;
+end;
+/
+------------------------package body----------------------------------
+create or replace package body operations as
+function add(var1 number, var2 number) return number as
+result number;
+begin
+result:=var1+var2;
+dbms_output.put_line('add with 2 parameters '||result);
+return result;
+end;
+
+
+function add(var1 number, var2 number, var3 number) return number as
+result number;
+begin
+result:=var1+var2+var3;
+dbms_output.put_line('add with 3 parameters '||result);
+return result;
+end;
+end;
+/
+
+
+------execution part-----
+declare
+res number;
+begin
+res:=operations.add(10,20);
+dbms_output.put_line('res= '||res);
+
+res:=operations.add(10,20,30);
+dbms_output.put_line('res= '||res);
+end;
+
+o/p:-
+add with 2 parameters 30
+res= 30
+add with 3 parameters 60
+res= 60
+
+-----------------------------------------------------------------------------------------------------------------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
