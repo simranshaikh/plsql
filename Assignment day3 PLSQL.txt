@@ -1,0 +1,148 @@
+1)
+declare
+v_name emp.ename%type;
+v_sal emp.sal%type:=&salary;
+begin
+select ename into v_name from emp where sal=v_sal;
+insert into messages values(v_name);
+dbms_output.put_line('name of emp='||v_name||' and his salary is='||v_sal);
+exception
+when too_many_rows then
+insert into messages values('More than one employee with salary of  '||v_sal);
+when no_data_found then
+insert into messages values('No employee with salary of  '|| v_sal);
+when others then
+dbms_output.put_line('some other error occured');
+end;
+/
+
+2)
+declare
+v_id dept.deptno%type:=&id;
+v_name dept.dname%type:=&depart;
+v_loc dept.loc%type:=&loca;
+DUPLICATE_DEPT exception;
+pragma exception_init(DUPLICATE_DEPT,-00001);
+begin
+insert into dept values(v_id,v_name,v_loc);
+exception
+when DUPLICATE_DEPT then
+dbms_output.put_line('dept id already exists,please enter another value and error code is'||SQLCODE);
+end;
+/
+
+
+3)
+declare
+v_name emp.job%type;
+DUPLICATE_PRESIDENT  exception;
+pragma exception_init(DUPLICATE_PRESIDENT ,-01422);
+begin
+select ename into v_name from emp where job='PRESIDENT';
+dbms_output.put_line('name of president is '||v_name);
+exception
+when DUPLICATE_PRESIDENT then 
+dbms_output.put_line('more than one president is present');
+end;
+/
+
+
+
+4)
+declare
+v_sal1 emp.sal%type;
+v_name emp.ename%type;
+v_sal emp.sal%type;
+v_emp1 emp.empno%type:=&emp1;
+v_emp2 emp.empno%type:=&emp2;
+begin
+begin
+select ename,sal into v_name,v_sal from emp where empno=v_emp1;
+update emp set sal=sal +0.1*sal where empno=v_emp1;
+select sal into v_sal1 from emp where empno=v_emp1;
+dbms_output.put_line('name of emp  '||v_name||'   previous salary is= '||v_sal||'  updated salary= '||v_sal1);
+exception
+when no_data_found then
+dbms_output.put_line('emp1 does not exists');
+end;
+
+select ename into v_name from emp where empno=v_emp2;
+update emp set sal=sal +0.2*sal where empno=v_emp2;
+select sal into v_sal1 from emp where empno=v_emp2;
+dbms_output.put_line('name of emp  '||v_name||'  previous salary is= '||v_sal||'  updated salary= '||v_sal1);
+exception
+when no_data_found then
+dbms_output.put_line('emp2 does not exists');
+close c_emp;
+end;
+/
+
+
+5)
+declare
+v_bid booking.book_id%type:=&bid;
+v_bdate booking.booking_d%type:=&bdt;
+v_person booking.person_book%type:=&per;
+v_tid booking.theartre_i%type:=&tid;
+v_mid booking.movie_id%type:=&mid;
+v_sid booking.show_id%type:=&sid;
+v_tno booking.no_of_tickets%type:=&tno;
+begin
+select from booking where book_id=v_bid; 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

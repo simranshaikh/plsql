@@ -1,0 +1,144 @@
+1)
+create or replace package MANAGE_EMP_PACK as
+procedure HIRE_EMP(p_empno emp.empno%type,p_ename emp.ename%type,p_job emp.job%type,p_mgr emp.mgr%type,p_hiredate emp.hiredate%type,p_sal emp.sal%type,p_comm emp.comm%type,p_deptno emp.deptno%type) ;
+
+procedure FIRE_EMP(f_empno emp.empno%type,f_ename emp.ename%type,f_job emp.job%type,f_mgr emp.mgr%type,f_hiredate emp.hiredate%type,f_sal emp.sal%type,f_comm emp.comm%type,f_deptno emp.deptno%type) ;
+end;
+/
+
+create or replace package body MANAGE_EMP_PACK as
+
+function VALIDATE_EMP(v_empno emp.empno%type) return boolean as
+v_ename emp.ename%type;
+begin
+select ename into v_ename from emp where empno=v_empno;
+if v_ename is not null then
+return true;
+else
+return false;
+end if;
+exception
+when no_data_found then 
+return false;
+end;
+
+procedure HIRE_EMP(p_empno emp.empno%type,p_ename emp.ename%type,p_job emp.job%type,p_mgr emp.mgr%type,p_hiredate emp.hiredate%type,p_sal emp.sal%type,p_comm emp.comm%type,p_deptno emp.deptno%type)  as
+v_insert_cnt number:=0;
+begin
+if  VALIDATE_EMP(p_empno) then
+dbms_output.put_line('emp no already in use');
+else
+insert into emp values(p_empno,p_ename,p_job,p_mgr,p_hiredate,p_sal,p_comm,p_deptno);
+v_insert_cnt:=v_insert_cnt+1;
+dbms_output.put_line(v_insert_cnt);
+end if;
+end;
+
+procedure FIRE_EMP(f_empno emp.empno%type,f_ename emp.ename%type,f_job emp.job%type,f_mgr emp.mgr%type,f_hiredate emp.hiredate%type,f_sal emp.sal%type,f_comm emp.comm%type,f_deptno emp.deptno%type)  as
+v_delete_cnt number:=0;
+begin
+if  VALIDATE_EMP(f_empno) then
+delete from emp where empno=f_empno;
+dbms_output.put_line('one employee record is deleted');
+v_delete_cnt:=v_delete_cnt+1;
+dbms_output.put_line(v_delete_cnt);
+else
+dbms_output.put_line('wrong employee number is entered');
+end if;
+end;
+end;
+/
+
+execute MANAGE_EMP_PACK.HIRE_EMP(7999,'shashank','sales',7788,'15-MAR-2017',5000,0,10);
+
+
+2)
+create or replace package MY_EMP_PACK as
+function GET_AVG_SAL(p_ename emp.ename%type) return number;
+function GET_AVG_SAL(p_no emp.empno%type) return number;
+end;
+/
+
+create or replace package body MY_EMP_PACK as
+function GET_AVG_SAL(p_ename emp.ename%type) return number as
+v_no emp.deptno%type;
+v_sal emp.sal%type;
+begin
+select deptno into v_no from emp  where ename=p_ename;
+select avg(sal) into v_sal from emp where deptno=v_no;
+dbms_output.put_line('from ename avg sal is'||v_sal);
+return v_sal;
+end;
+
+function GET_AVG_SAL(p_no emp.empno%type) return number as
+v_no emp.deptno%type;
+v_sal emp.sal%type;
+begin
+select deptno into v_no from emp  where empno=p_no;
+select avg(sal) into v_sal from emp where deptno=v_no;
+dbms_output.put_line('from empno avg sal is'||v_sal);
+return v_sal;
+end;
+end;
+/
+
+declare
+v_sal number;
+begin
+v_sal:=MY_EMP_PACK.GET_AVG_SAL('KING');
+v_sal:=MY_EMP_PACK.GET_AVG_SAL(7844);
+end;
+/
+
+3)
+create or replace package  MY_PLANS as
+procedure Display_Plans ;
+end;
+/
+
+create or replace package body  MY_PLANS as
+function Find_Plan return number as
+v_id number;
+begin
+select plan_id into v_id from customers group by plan_id having count(*)=(select max(count(*)) from customers group by plan_id);
+dbms_output.put_line('plan_id is     '||v_id);
+return v_id;
+end;
+
+procedure Display_Plans as 
+s_name plans.plan_name%type;
+v_name plans.plan_name%type;
+s_no plans.service_id%type;
+v_id number;
+begin
+v_id:=MY_PLANS.Find_Plan;
+select plan_name,service_id into v_name,s_no from plans where plan_id=v_id;
+select service_name  into s_name from services where service_id=s_no;
+dbms_output.put_line('plan name is   '||v_name||'    service name is   '||s_name);
+end;
+end;
+/ 
+
+execute MY_PLANS.Display_Plans;
+
+4)
+Create a Package pkgDisplay_details which has a public function and a public procedure as given below :					
+
+1)	Public function fnDisplayStatus which accepts paper id as parameter 
+and returns the status of  paper. If an invalid paper is passed then it returns invalid 
+2)	Public procedure prDispCount which accepts author id and status 
+as parameter. The procedure displays the no of papers by the author with the given status.
+Hint : prDispCount('A001','Published') will display the count as 2.
+
+Invoke the above function and procedure from the anonymous block and display the values returned by the function.
+
+
+
+
+
+
+
+
+
+
+

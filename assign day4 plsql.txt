@@ -1,0 +1,112 @@
+1)
+variable g_myjob varchar2;
+variable g_mysal number;
+
+create or replace procedure USER_QUERY_EMP(p_myeno number,p_myjob1 out emp.job%type,p_mysal1 out emp.sal%type ) as
+begin
+select sal,job into p_mysal1,p_myjob1 from emp where empno=p_myeno;
+dbms_output.put_line('salary = '||p_mysal1||'job is '||p_myjob1);
+
+exception
+when no_data_found then
+dbms_output.put_line('enter valid emp_id');
+end;
+/
+
+declare
+
+begin
+USER_QUERY_EMP(7844,:g_myjob,:g_mysal);
+end;
+/
+***********************************************************************************************
+2)
+create or replace function USER_ANNUAL_COMP (p_eno emp.empno%type,p_sal emp.sal%type ,p_comm emp.comm%type) return number as
+annual_compensation number;
+
+begin 
+annual_compensation :=(p_sal+nvl(p_comm,0))*12;
+return annual_compensation;
+end;
+/
+
+
+declare
+v_compensation emp.comm%type;
+v_empid  emp.empno%type:=&id;
+begin
+select USER_ANNUAL_COMP(empno,sal,comm) into v_compensation from emp where empno=v_empid;
+dbms_output.put_line('compensation is '||v_compensation);
+end;
+/
+
+
+
+
+3)
+create or replace function USER_VALID_DEPTNO (p_dno dept.deptno%type) return boolean as
+v_d dept.dname%type;
+begin
+select dname into v_d from dept where deptno=p_dno;
+if v_d is not null then
+dbms_output.put_line('dname is '||v_d);
+return true;
+else
+return false;
+end if;
+end;
+/
+
+
+create or replace procedure  SHOW_STRENGTH (p_deptno emp.deptno%type) as
+v_no number;
+begin
+if USER_VALID_DEPTNO (p_deptno) then
+select count(ename) into v_no from emp where deptno=p_deptno;
+dbms_output.put_line('number of employees are '||v_no);
+else
+dbms_output.put_line('department does not exists');
+end if;
+exception
+when no_data_found then
+dbms_output.put_line('department does not exists');
+end;
+/ 
+
+begin
+SHOW_STRENGTH(30);
+end;
+/
+
+4)
+
+create or replace procedure SHOW_RECORDS (p_join_date emp.hiredate%type) as
+cursor c_emp is select * from emp where hiredate>p_join_date;
+v_emp c_emp%rowtype;
+begin
+dbms_output.put_line('employees joined after'||p_join_date);
+dbms_output.put_line('firstname               '||'job               '||'salary               '||'department               ');
+dbms_output.put_line('-------------------------------------------------------------------------------');
+for v_emp in c_emp
+loop
+dbms_output.put_line(v_emp.ename||'                '||v_emp.job||'               '||v_emp.sal||'              '||v_emp.deptno);
+end loop;
+end;
+/       
+execute SHOW_RECORDS('17-DEC-81')
+
+5)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
